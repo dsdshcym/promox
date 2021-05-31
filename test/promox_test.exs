@@ -80,5 +80,23 @@ defmodule PromoxTest do
              |> Task.async()
              |> Task.await() == :stubbed_add
     end
+
+    test "raises ArgumentError if Promox.defmock(protocol) has not been called" do
+      assert_raise(
+        ArgumentError,
+        "unmocked Protocol Enumerable. Call Promox.defmock(for: Enumerable) first.",
+        fn ->
+          Promox.new()
+          |> Promox.expect(Enumerable, :count, fn _ -> :should_not_be_called end)
+        end
+      )
+    end
+
+    test "raises ArgumentError if protocol doesn't have this callback" do
+      assert_raise(ArgumentError, "unknown callback function Calculable.div/2", fn ->
+        Promox.new()
+        |> Promox.expect(Calculable, :div, fn _mock, :z -> :stubbed_div end)
+      end)
+    end
   end
 end

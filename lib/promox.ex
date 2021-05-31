@@ -42,9 +42,35 @@ defmodule Promox do
   end
 
   def expect(promox, protocol, name, n \\ 1, code) do
+    verify_protocol!(protocol, promox)
+    verify_callback!(protocol, name, code)
+
     :ok = Agent.update(promox.agent, &Promox.State.expect(&1, protocol, name, n, code))
 
     promox
+  end
+
+  defp verify_protocol!(protocol, promox) do
+    case protocol.impl_for(promox) do
+      nil ->
+        raise ArgumentError,
+              "unmocked Protocol #{inspect(protocol)}. Call Promox.defmock(for: #{inspect(protocol)}) first."
+
+      _ ->
+        :ok
+    end
+  end
+
+  defp verify_callback!(protocol, name, code) do
+    {:arity, arity} = Function.info(code, :arity)
+
+    if Enum.find(protocol.__protocol__(:functions), &(&1 == {name, arity})),
+      do: :ok,
+      else:
+        raise(
+          ArgumentError,
+          "unknown callback function #{Exception.format_mfa(protocol, name, arity)}"
+        )
   end
 
   @doc false
