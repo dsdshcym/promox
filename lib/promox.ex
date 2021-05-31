@@ -7,6 +7,10 @@ defmodule Promox do
     defexception [:message]
   end
 
+  defmodule VerificationError do
+    defexception [:message]
+  end
+
   defmacro defmock(for: protocol) do
     protocol_mod = Macro.expand(protocol, __CALLER__)
 
@@ -86,6 +90,26 @@ defmodule Promox do
 
       fun when is_function(fun) ->
         apply(fun, args)
+    end
+  end
+
+  def verify!(promox) do
+    promox.agent
+    |> Agent.get(&Promox.State.get_expects/1)
+    |> Enum.filter(fn {_pfa, expects} -> length(expects) > 0 end)
+    |> case do
+      [] ->
+        :ok
+
+      unmet_expects ->
+        messages =
+          unmet_expects
+          |> Enum.map(fn {{protocol, fun, arity}, _expects} ->
+            "  * #{Exception.format_mfa(protocol, fun, arity)}"
+          end)
+
+        raise VerificationError,
+              "error while verifying mocks for these protocols:\n\n" <> Enum.join(messages, "\n")
     end
   end
 end

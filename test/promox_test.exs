@@ -99,4 +99,60 @@ defmodule PromoxTest do
       end)
     end
   end
+
+  describe "verify!/1" do
+    test "passes for an empty mock (which doesn't have any expects)" do
+      mock = Promox.new()
+
+      assert Promox.verify!(mock) == :ok
+    end
+
+    test "fails for a mock that didn't met 1 function expects" do
+      mock =
+        Promox.new()
+        |> Promox.expect(Calculable, :add, fn _, _ -> :stubbed_add end)
+
+      assert_raise(
+        Promox.VerificationError,
+        "error while verifying mocks for these protocols:\n\n  * Calculable.add/2",
+        fn -> Promox.verify!(mock) end
+      )
+    end
+
+    test "fails for a mock that didn't met multiple functions expects" do
+      mock =
+        Promox.new()
+        |> Promox.expect(Calculable, :add, fn _, _ -> :stubbed_add end)
+        |> Promox.expect(Calculable, :mult, fn _, _ -> :stubbed_mult end)
+
+      assert_raise(
+        Promox.VerificationError,
+        "error while verifying mocks for these protocols:\n\n  * Calculable.add/2\n  * Calculable.mult/2",
+        fn -> Promox.verify!(mock) end
+      )
+    end
+
+    test "fails for a mock that didn't met multiple protocols expects" do
+      mock =
+        Promox.new()
+        |> Promox.expect(Calculable, :add, fn _, _ -> :stubbed_add end)
+        |> Promox.expect(ScientificCalculable, :exponent, fn _, _ -> :stubbed_exponent end)
+
+      assert_raise(
+        Promox.VerificationError,
+        "error while verifying mocks for these protocols:\n\n  * Calculable.add/2\n  * ScientificCalculable.exponent/2",
+        fn -> Promox.verify!(mock) end
+      )
+    end
+
+    test "passes for a mock that satisfies expects" do
+      mock =
+        Promox.new()
+        |> Promox.expect(Calculable, :add, fn _, _ -> :stubbed_add end)
+
+      Calculable.add(mock, :whatever)
+
+      assert Promox.verify!(mock) == :ok
+    end
+  end
 end
