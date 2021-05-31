@@ -14,6 +14,10 @@ defmodule Promox.State do
     end)
   end
 
+  def get_expects(state) do
+    state.expects
+  end
+
   def retrieve(state, pfa) do
     get_and_update_in(state, [:expects, pfa], fn
       nil -> {nil, nil}
