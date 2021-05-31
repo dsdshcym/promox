@@ -41,6 +41,12 @@ defmodule Promox do
     %__MODULE__{agent: agent}
   end
 
+  def expect(promox, protocol, name, n \\ 1, code) do
+    :ok = Agent.update(promox.agent, &Promox.State.expect(&1, protocol, name, n, code))
+
+    promox
+  end
+
   @doc false
   def call(promox, pfa, args) do
     promox.agent
@@ -51,6 +57,9 @@ defmodule Promox do
 
         raise UnexpectedCallError,
               "no expectation defined for #{Exception.format_mfa(protocol, fun, arity)}"
+
+      fun when is_function(fun) ->
+        apply(fun, args)
     end
   end
 end
