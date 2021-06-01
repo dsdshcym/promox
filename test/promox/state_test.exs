@@ -69,8 +69,10 @@ defmodule Promox.StateTest do
           3, 4 -> :stubbed_add2
         end)
 
-      {fun, _} = State.retrieve(state, {Calculable, :add, 2})
+      {fun, state1} = State.retrieve(state, {Calculable, :add, 2})
       assert fun.(3, 4) == :stubbed_add2
+
+      {fun, _state2} = State.retrieve(state1, {Calculable, :add, 2})
       assert fun.(1, 2) == :stubbed_add1
     end
 
