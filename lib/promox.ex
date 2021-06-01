@@ -45,6 +45,15 @@ defmodule Promox do
     %__MODULE__{agent: agent}
   end
 
+  def stub(promox, protocol, name, code) do
+    verify_protocol!(protocol, promox)
+    verify_callback!(protocol, name, code)
+
+    :ok = Agent.update(promox.agent, &Promox.State.stub(&1, protocol, name, code))
+
+    promox
+  end
+
   def expect(promox, protocol, name, n \\ 1, code) do
     verify_protocol!(protocol, promox)
     verify_callback!(protocol, name, code)
