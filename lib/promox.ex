@@ -173,6 +173,11 @@ defmodule Promox do
     end
   end
 
+  @doc """
+  Verifys that all the expectations set for the `mock` have been called.
+  Returns `:ok` if so;
+  Otherwise, raises `Promox.VerificationError`.
+  """
   def verify!(mock) do
     mock.agent
     |> Agent.get(&Promox.State.get_expects/1)
