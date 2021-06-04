@@ -15,8 +15,8 @@ defmodule Promox.State do
     additional_funs = List.duplicate(fun, n)
 
     update_in(state, [:expects, {protocol, callback, arity}], fn
-      nil -> additional_funs
-      expects -> expects ++ additional_funs
+      nil -> {additional_funs, []}
+      {expects, used_expects} -> {expects ++ additional_funs, used_expects}
     end)
   end
 
@@ -36,8 +36,8 @@ defmodule Promox.State do
   defp pop_expect(state, pfa) do
     get_and_update_in(state, [:expects, pfa], fn
       nil -> {nil, nil}
-      [] -> {nil, []}
-      [expect | rest] -> {expect, rest}
+      {[], used_expects} -> {nil, {[], used_expects}}
+      {[expect | rest], used_expects} -> {expect, {rest, [expect | used_expects]}}
     end)
   end
 

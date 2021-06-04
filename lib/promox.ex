@@ -181,7 +181,7 @@ defmodule Promox do
   def verify!(mock) do
     mock.agent
     |> Agent.get(&Promox.State.get_expects/1)
-    |> Enum.filter(fn {_pfa, expects} -> length(expects) > 0 end)
+    |> Enum.filter(fn {_pfa, {expects, _used_expects}} -> length(expects) > 0 end)
     |> case do
       [] ->
         :ok
@@ -189,12 +189,18 @@ defmodule Promox do
       unmet_expects ->
         messages =
           unmet_expects
-          |> Enum.map(fn {{protocol, fun, arity}, _expects} ->
-            "  * #{Exception.format_mfa(protocol, fun, arity)}"
+          |> Enum.map(fn {{protocol, fun, arity}, {expects, used_expects}} ->
+            total = length(expects) + length(used_expects)
+            called = length(used_expects)
+
+            "  * expect #{Exception.format_mfa(protocol, fun, arity)} to be called #{times(total)}, but it was called #{times(called)}"
           end)
 
         raise VerificationError,
               "error while verifying mocks for these protocols:\n\n" <> Enum.join(messages, "\n")
     end
   end
+
+  defp times(1), do: "once"
+  defp times(n), do: "#{n} times"
 end

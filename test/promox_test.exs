@@ -186,7 +186,7 @@ defmodule PromoxTest do
 
       assert_raise(
         Promox.VerificationError,
-        "error while verifying mocks for these protocols:\n\n  * Calculable.add/2",
+        "error while verifying mocks for these protocols:\n\n  * expect Calculable.add/2 to be called once, but it was called 0 times",
         fn -> Promox.verify!(mock) end
       )
     end
@@ -199,7 +199,21 @@ defmodule PromoxTest do
 
       assert_raise(
         Promox.VerificationError,
-        "error while verifying mocks for these protocols:\n\n  * Calculable.add/2\n  * Calculable.mult/2",
+        "error while verifying mocks for these protocols:\n\n  * expect Calculable.add/2 to be called once, but it was called 0 times\n  * expect Calculable.mult/2 to be called once, but it was called 0 times",
+        fn -> Promox.verify!(mock) end
+      )
+    end
+
+    test "fails for a mock that didn't met function expects more than once" do
+      mock =
+        Promox.new()
+        |> Promox.expect(Calculable, :add, 5, fn _, _ -> :stubbed_add end)
+
+      :stubbed_add = Calculable.add(mock, :x)
+
+      assert_raise(
+        Promox.VerificationError,
+        "error while verifying mocks for these protocols:\n\n  * expect Calculable.add/2 to be called 5 times, but it was called once",
         fn -> Promox.verify!(mock) end
       )
     end
@@ -212,7 +226,7 @@ defmodule PromoxTest do
 
       assert_raise(
         Promox.VerificationError,
-        "error while verifying mocks for these protocols:\n\n  * Calculable.add/2\n  * ScientificCalculable.exponent/2",
+        "error while verifying mocks for these protocols:\n\n  * expect Calculable.add/2 to be called once, but it was called 0 times\n  * expect ScientificCalculable.exponent/2 to be called once, but it was called 0 times",
         fn -> Promox.verify!(mock) end
       )
     end
