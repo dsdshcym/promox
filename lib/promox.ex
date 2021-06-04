@@ -13,7 +13,13 @@ defmodule Promox do
 
   @doc """
   Enables mock `:for` the given protocol.
+
+  ## Caveats
+
+  Since `defmock/1` is a macro, so remember to `require Promox` before calling `Promox.defmock/1`.
   ```
+  require Promox
+
   Promox.defmock(for: MyProtocol)
   ```
   """
