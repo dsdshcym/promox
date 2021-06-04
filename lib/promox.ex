@@ -11,6 +11,12 @@ defmodule Promox do
     defexception [:message]
   end
 
+  @doc """
+  Enables mock `:for` the given protocol.
+  ```
+  Promox.defmock(for: MyProtocol)
+  ```
+  """
   defmacro defmock(for: protocol) do
     protocol_mod = Macro.expand(protocol, __CALLER__)
 
