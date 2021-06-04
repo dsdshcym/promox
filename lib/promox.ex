@@ -19,11 +19,11 @@ defmodule Promox do
         args = Macro.generate_unique_arguments(arity - 1, __MODULE__)
 
         quote do
-          def unquote(fun)(promox, unquote_splicing(args)) do
+          def unquote(fun)(mock, unquote_splicing(args)) do
             Promox.call(
-              promox,
+              mock,
               {unquote(protocol_mod), unquote(fun), unquote(arity)},
-              [promox | unquote(args)]
+              [mock | unquote(args)]
             )
           end
         end
@@ -45,26 +45,26 @@ defmodule Promox do
     %__MODULE__{agent: agent}
   end
 
-  def stub(promox, protocol, name, code) do
-    verify_protocol!(protocol, promox)
+  def stub(mock, protocol, name, code) do
+    verify_protocol!(protocol, mock)
     verify_callback!(protocol, name, code)
 
-    :ok = Agent.update(promox.agent, &Promox.State.stub(&1, protocol, name, code))
+    :ok = Agent.update(mock.agent, &Promox.State.stub(&1, protocol, name, code))
 
-    promox
+    mock
   end
 
-  def expect(promox, protocol, name, n \\ 1, code) do
-    verify_protocol!(protocol, promox)
+  def expect(mock, protocol, name, n \\ 1, code) do
+    verify_protocol!(protocol, mock)
     verify_callback!(protocol, name, code)
 
-    :ok = Agent.update(promox.agent, &Promox.State.expect(&1, protocol, name, n, code))
+    :ok = Agent.update(mock.agent, &Promox.State.expect(&1, protocol, name, n, code))
 
-    promox
+    mock
   end
 
-  defp verify_protocol!(protocol, promox) do
-    case protocol.impl_for(promox) do
+  defp verify_protocol!(protocol, mock) do
+    case protocol.impl_for(mock) do
       nil ->
         raise ArgumentError,
               "unmocked Protocol #{inspect(protocol)}. Call Promox.defmock(for: #{inspect(protocol)}) first."
@@ -87,8 +87,8 @@ defmodule Promox do
   end
 
   @doc false
-  def call(promox, pfa, args) do
-    promox.agent
+  def call(mock, pfa, args) do
+    mock.agent
     |> Agent.get_and_update(&Promox.State.retrieve(&1, pfa))
     |> case do
       nil ->
@@ -102,8 +102,8 @@ defmodule Promox do
     end
   end
 
-  def verify!(promox) do
-    promox.agent
+  def verify!(mock) do
+    mock.agent
     |> Agent.get(&Promox.State.get_expects/1)
     |> Enum.filter(fn {_pfa, expects} -> length(expects) > 0 end)
     |> case do
