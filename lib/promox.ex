@@ -45,6 +45,31 @@ defmodule Promox do
   @enforce_keys [:agent]
   defstruct [:agent]
 
+  @doc """
+  Initialize a new mock struct.
+  ```
+  my_mock = Promox.new()
+
+  # Promox.expect(my_mock, MyProtocol, :callback, fn _mock, ... -> ... end)
+  ```
+
+  Since mocks are just isolated data structures, you can use them in concurrent processes.
+  ```
+    mock1 =
+      Promox.new()
+      |> Promox.expect(MyProtocol, :callback, fn _mock, ... -> :ok end)
+
+    mock2 =
+      Promox.new()
+      |> Promox.expect(MyProtocol, :callback, fn _mock, ... -> :error end)
+
+    assert :ok = MyProtocol.callback(mock1, ...)
+    assert :error =
+             fn -> MyProtocol.callback(mock2, ...) end
+             |> Task.async()
+             |> Task.await()
+  ```
+  """
   def new() do
     {:ok, agent} = Agent.start_link(Promox.State, :new, [])
 
