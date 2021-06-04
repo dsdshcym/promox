@@ -76,6 +76,25 @@ defmodule Promox do
     %__MODULE__{agent: agent}
   end
 
+  @doc """
+  Allows the `protocol.name` callback with arity given by `code` to be invoked with `mock` any times.
+  The call would be delegated to `code` and returns whatever `code` returns.
+
+  ## Caveat
+  1. The first argument passed to `code` is always the `mock` being stubbed.
+  2. `stub/4` will overwrite any previous calls to `stub/4`
+  3. If expectations and stubs are defined for the same function and arity, the stub is invoked only after all expectations are fulfilled.
+
+  ## Examples
+
+  To allow `MyProtocol.callback/1` to be called any times:
+
+  ```
+    my_mock =
+      Promox.new()
+      |> Promox.stub(MyProtocol, :callback, fn _mock -> :ok end)
+  ```
+  """
   def stub(mock, protocol, name, code) do
     verify_protocol!(protocol, mock)
     verify_callback!(protocol, name, code)
