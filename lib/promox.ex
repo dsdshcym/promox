@@ -104,6 +104,27 @@ defmodule Promox do
     mock
   end
 
+  @doc """
+  Expects the `protocol.name` callback with arity given by `code` to be invoked with `mock` `n` times.
+
+  ## Examples
+
+  To expect `MyProtocol.callback/1` to be called once:
+
+  ```
+    my_mock =
+      Promox.new()
+      |> Promox.expect(MyProtocol, :callback, fn _mock -> :ok end)
+  ```
+
+  To expect `MyProtocol.callback/1` to be called five times:
+
+  ```
+    my_mock =
+      Promox.new()
+      |> Promox.expect(MyProtocol, :callback, 5, fn _mock -> :ok end)
+  ```
+  """
   def expect(mock, protocol, name, n \\ 1, code) do
     verify_protocol!(protocol, mock)
     verify_callback!(protocol, name, code)
