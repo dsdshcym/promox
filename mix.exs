@@ -8,6 +8,9 @@ defmodule Promox.MixProject do
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
+      name: "Promox",
+      description: "Protocol-based mocks and explicit contracts in Elixir",
+      package: package(),
       deps: deps()
     ]
   end
@@ -17,6 +20,14 @@ defmodule Promox.MixProject do
     [
       extra_applications: [:logger]
     ]
+  end
+
+  defp package do
+    %{
+      licenses: ["Apache-2.0"],
+      maintainers: ["Yiming Chen"],
+      links: %{"GitHub" => "https://github.com/dsdshcym/promox"}
+    }
   end
 
   # Run "mix help deps" to learn about dependencies.
