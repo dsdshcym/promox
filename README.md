@@ -115,3 +115,11 @@ defmodule MyApp.Storable.AsyncTest do
   end
 end
 ```
+
+## Why would you need Promox when Mox exists?
+
+Mox simplifies mocking Behaviour callbacks;\
+Promox simplifies mocking Protocol callbacks.\
+Protocols and Behaviours are both ways to achieve polymorphism in Elixir.\
+You should pick Protocols or Behaviours depending on the problem in your hand.\
+When you pick Protocols, you may need Promox to create mocks dynamically in your tests.
