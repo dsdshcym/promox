@@ -110,8 +110,9 @@ defmodule MyApp.Storable.AsyncTest do
 
     async_storable = Storable.Async.new(mock_storable)
 
-    assert_receive(:mock_gets_called)
     assert :ok = Storable.upload(async_storable, "path", "data")
+    assert_receive(:mock_gets_called)
+    Promox.verify!(mock_storable)
   end
 end
 ```
