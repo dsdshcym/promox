@@ -11,6 +11,7 @@ defmodule Promox.MixProject do
       name: "Promox",
       description: "Protocol-based mocks and explicit contracts in Elixir",
       package: package(),
+      docs: docs(),
       deps: deps()
     ]
   end
@@ -28,6 +29,13 @@ defmodule Promox.MixProject do
       maintainers: ["Yiming Chen"],
       links: %{"GitHub" => "https://github.com/dsdshcym/promox"}
     }
+  end
+
+  defp docs do
+    [
+      main: "readme",
+      extras: ["README.md"]
+    ]
   end
 
   # Run "mix help deps" to learn about dependencies.
