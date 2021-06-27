@@ -24,26 +24,19 @@ defmodule Promox do
   ```
   """
   defmacro defmock(for: protocol) do
-    protocol_mod = Macro.expand(protocol, __CALLER__)
+    quote bind_quoted: [protocol: protocol] do
+      defimpl protocol, for: Promox do
+        for {fun, arity} <- protocol.__protocol__(:functions) do
+          args = Macro.generate_unique_arguments(arity - 1, __MODULE__)
 
-    mock_funs =
-      for {fun, arity} <- protocol_mod.__protocol__(:functions) do
-        args = Macro.generate_unique_arguments(arity - 1, __MODULE__)
-
-        quote do
           def unquote(fun)(mock, unquote_splicing(args)) do
             Promox.call(
               mock,
-              {unquote(protocol_mod), unquote(fun), unquote(arity)},
+              {unquote(protocol), unquote(fun), unquote(arity)},
               [mock | unquote(args)]
             )
           end
         end
-      end
-
-    quote do
-      defimpl unquote(protocol_mod), for: Promox do
-        unquote(mock_funs)
       end
     end
   end
