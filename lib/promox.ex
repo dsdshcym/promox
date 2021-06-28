@@ -27,7 +27,7 @@ defmodule Promox do
     quote bind_quoted: [protocol: protocol] do
       defimpl protocol, for: Promox do
         for {fun, arity} <- protocol.__protocol__(:functions) do
-          args = Macro.generate_unique_arguments(arity - 1, __MODULE__)
+          args = Macro.generate_arguments(arity - 1, __MODULE__)
 
           def unquote(fun)(mock, unquote_splicing(args)) do
             Promox.call(
