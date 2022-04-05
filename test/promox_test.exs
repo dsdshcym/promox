@@ -231,6 +231,23 @@ defmodule PromoxTest do
       )
     end
 
+    test "fails when UnexpectedCallError gets rescued" do
+      mock = Promox.new()
+
+      try do
+        Calculable.add(mock, 1)
+      rescue
+        _e in [Promox.UnexpectedCallError] ->
+          :ok
+      end
+
+      assert_raise(
+        Promox.UnexpectedCallError,
+        ~r{unexpected call to Calculable.add/2},
+        fn -> Promox.verify!(mock) end
+      )
+    end
+
     test "passes for a mock that satisfies expects" do
       mock =
         Promox.new()
