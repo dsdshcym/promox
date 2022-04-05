@@ -96,6 +96,18 @@ defmodule PromoxTest do
       assert Calculable.add(mock, :x) == :stubbed_add
     end
 
+    test "raises if a function gets called if it's expected to be called 0 times" do
+      mock =
+        Promox.new()
+        |> Promox.expect(Calculable, :add, 0, fn _mock, :x -> :stubbed_add end)
+
+      assert_raise(
+        Promox.UnexpectedCallError,
+        "no expectation defined for Calculable.add/2",
+        fn -> Calculable.add(mock, :x) end
+      )
+    end
+
     test "raises if a function gets called after `n` times" do
       mock =
         Promox.new()
@@ -229,6 +241,31 @@ defmodule PromoxTest do
         "error while verifying mocks for these protocols:\n\n  * expect Calculable.add/2 to be called once, but it was called 0 times\n  * expect ScientificCalculable.exponent/2 to be called once, but it was called 0 times",
         fn -> Promox.verify!(mock) end
       )
+    end
+
+    test "fails when UnexpectedCallError gets rescued" do
+      mock = Promox.new()
+
+      try do
+        Calculable.add(mock, 1)
+      rescue
+        _e in [Promox.UnexpectedCallError] ->
+          :ok
+      end
+
+      assert_raise(
+        Promox.UnexpectedCallError,
+        ~r{unexpected call to Calculable.add/2},
+        fn -> Promox.verify!(mock) end
+      )
+    end
+
+    test "passes for a mock that expect a function to be called 0 times" do
+      mock =
+        Promox.new()
+        |> Promox.expect(Calculable, :add, 0, fn _mock, :x -> :stubbed_add end)
+
+      assert Promox.verify!(mock) == :ok
     end
 
     test "passes for a mock that satisfies expects" do
