@@ -35,7 +35,7 @@ defmodule Promox.State do
 
   defp pop_expect(state, pfa) do
     get_and_update_in(state, [:expects, pfa], fn
-      nil -> {nil, {[], []}}
+      nil -> {nil, nil}
       {[], used_expects} -> {nil, {[], used_expects}}
       {[expect | rest], used_expects} -> {expect, {rest, [expect | used_expects]}}
     end)
