@@ -82,7 +82,7 @@ defmodule MyApp.Storable.FallbackChainTest do
 
     fallback_chain = Storable.FallbackChain.new([error_storable, ok_storable])
 
-    assert {:ok, "result from ok_storable"} = Storable.download(storable_with_retry, "path")
+    assert {:ok, "result from ok_storable"} = Storable.download(fallback_chain, "path")
   end
 end
 ```
