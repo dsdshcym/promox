@@ -54,19 +54,19 @@ defmodule Promox do
 
   Since mocks are just isolated data structures, you can use them in concurrent processes.
   ```
-    mock1 =
-      Promox.new()
-      |> Promox.expect(MyProtocol, :callback, fn _mock, ... -> :ok end)
+  mock1 =
+    Promox.new()
+    |> Promox.expect(MyProtocol, :callback, fn _mock, ... -> :ok end)
 
-    mock2 =
-      Promox.new()
-      |> Promox.expect(MyProtocol, :callback, fn _mock, ... -> :error end)
+  mock2 =
+    Promox.new()
+    |> Promox.expect(MyProtocol, :callback, fn _mock, ... -> :error end)
 
-    assert :ok = MyProtocol.callback(mock1, ...)
-    assert :error =
-             fn -> MyProtocol.callback(mock2, ...) end
-             |> Task.async()
-             |> Task.await()
+  assert :ok = MyProtocol.callback(mock1, ...)
+  assert :error =
+          fn -> MyProtocol.callback(mock2, ...) end
+          |> Task.async()
+          |> Task.await()
   ```
   """
   def new() do
@@ -89,9 +89,9 @@ defmodule Promox do
   To allow `MyProtocol.callback/1` to be called any times:
 
   ```
-    my_mock =
-      Promox.new()
-      |> Promox.stub(MyProtocol, :callback, fn _mock -> :ok end)
+  my_mock =
+    Promox.new()
+    |> Promox.stub(MyProtocol, :callback, fn _mock -> :ok end)
   ```
   """
   def stub(mock, protocol, name, code) do
@@ -111,17 +111,17 @@ defmodule Promox do
   To expect `MyProtocol.callback/1` to be called once:
 
   ```
-    my_mock =
-      Promox.new()
-      |> Promox.expect(MyProtocol, :callback, fn _mock -> :ok end)
+  my_mock =
+    Promox.new()
+    |> Promox.expect(MyProtocol, :callback, fn _mock -> :ok end)
   ```
 
   To expect `MyProtocol.callback/1` to be called five times:
 
   ```
-    my_mock =
-      Promox.new()
-      |> Promox.expect(MyProtocol, :callback, 5, fn _mock -> :ok end)
+  my_mock =
+    Promox.new()
+    |> Promox.expect(MyProtocol, :callback, 5, fn _mock -> :ok end)
   ```
   """
   def expect(mock, protocol, name, n \\ 1, code) do
