@@ -34,11 +34,16 @@ defmodule Promox.State do
   end
 
   defp pop_expect(state, pfa) do
-    get_and_update_in(state, [:expects, pfa], fn
-      nil -> {nil, nil}
-      {[], used_expects} -> {nil, {[], used_expects}}
-      {[expect | rest], used_expects} -> {expect, {rest, [expect | used_expects]}}
-    end)
+    case Map.fetch(state.expects, pfa) do
+      {:ok, {[], used_expects}} ->
+        {nil, put_in(state, [:expects, pfa], {[], used_expects})}
+
+      {:ok, {[expect | rest], used_expects}} ->
+        {expect, put_in(state, [:expects, pfa], {rest, [expect | used_expects]})}
+
+      :error ->
+        {nil, state}
+    end
   end
 
   defp get_stub(state, pfa) do

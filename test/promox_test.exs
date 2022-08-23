@@ -243,21 +243,16 @@ defmodule PromoxTest do
       )
     end
 
-    test "fails when UnexpectedCallError gets rescued" do
-      mock = Promox.new()
+    test "stub should not interfere with verify!" do
+      mock =
+        Promox.new()
+        |> Promox.stub(Calculable, :add, fn _, 1 -> 2 end)
+        |> Promox.expect(Calculable, :mult, fn _, 2 -> 3 end)
 
-      try do
-        Calculable.add(mock, 1)
-      rescue
-        _e in [Promox.UnexpectedCallError] ->
-          :ok
-      end
+      Calculable.add(mock, 1)
+      Calculable.mult(mock, 2)
 
-      assert_raise(
-        Promox.UnexpectedCallError,
-        ~r{unexpected call to Calculable.add/2},
-        fn -> Promox.verify!(mock) end
-      )
+      Promox.verify!(mock)
     end
 
     test "passes for a mock that expect a function to be called 0 times" do

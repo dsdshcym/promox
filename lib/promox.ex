@@ -180,23 +180,6 @@ defmodule Promox do
   def verify!(mock) do
     mock.agent
     |> Agent.get(&Promox.State.get_expects/1)
-    |> tap(fn expects ->
-      Enum.map(expects, fn
-        {{protocol, fun, arity}, nil} ->
-          raise UnexpectedCallError,
-                ~s"""
-                unexpected call to #{Exception.format_mfa(protocol, fun, arity)}
-
-                Usually, this error means that the mock was not used to stub or expect this function.
-                And when this function was called, a Promox.UnexpectedCallError should be raised immediately.
-                But this error was raised from Promox.verify!/1, which means that the above Promox.UnexpectedCallError was rescued.
-                You may also want to check if your code is rescuing more exceptions than it should.
-                """
-
-        _ ->
-          :ok
-      end)
-    end)
     |> Enum.filter(fn {_pfa, {expects, _used_expects}} -> length(expects) > 0 end)
     |> case do
       [] ->
